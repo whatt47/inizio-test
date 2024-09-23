@@ -5,7 +5,11 @@ const path = require('path');
 const app = express();
 
 app.use(express.static('public'));
-app.listen(5432);
+
+// Zajištění správného naslouchání pouze na jednom portu
+app.listen(4532, () => {
+    console.log('Server běží na https://inizio-test.onrender.com:4532/');
+});
 
 app.get('/search', async (req, res) => {
     try {
@@ -14,29 +18,33 @@ app.get('/search', async (req, res) => {
             return res.status(400).send('Chybí platný vyhledávací dotaz');
         }
 
+        // Funkce pro spuštění Puppeteeru
         async function startBrowser() {
             let browser;
             try {
-              console.log("Opening the browser......");
-              browser = await puppeteer.launch({
-                headless: true,
-                ignoreDefaultArgs: ["--disable-extensions"],
-                args: [
-                  "--no-sandbox",
-                  "--use-gl=egl",
-                  "--disable-setuid-sandbox",
-                ],
-                ignoreHTTPSErrors: true,
-              });
+                console.log("Opening the browser......");
+                browser = await puppeteer.launch({
+                    headless: true,
+                    ignoreDefaultArgs: ["--disable-extensions"],
+                    args: [
+                        "--no-sandbox",
+                        "--use-gl=egl",
+                        "--disable-setuid-sandbox",
+                    ],
+                    ignoreHTTPSErrors: true,
+                });
             } catch (err) {
-              console.log("Could not create a browser instance => : ", err);
+                console.log("Could not create a browser instance => : ", err);
             }
             return browser;
-          }
-          await page.setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36")
+        }
 
-        const browser = await puppeteer.launch();
+        const browser = await startBrowser();
         const page = await browser.newPage();
+
+        // Nastavení User-Agent až po vytvoření nové stránky
+        await page.setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36");
+
         const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(query)}&hl=cs`;
         await page.goto(searchUrl, { waitUntil: 'networkidle2' });
 
@@ -99,8 +107,4 @@ app.get('/search', async (req, res) => {
         console.error(error);
         res.status(500).send('Došlo k chybě při zpracování požadavku.');
     }
-});
-
-app.listen(4532, () => {
-    console.log('Server běží na https://inizio-test.onrender.com:4532/');
 });
