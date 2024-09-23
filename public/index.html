@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Scraper</title>
+    <style>
+        input[type="text"] {
+            width: 300px;
+            padding: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Google Scraper</h1>
+    <input type="text" id="searchInput" placeholder="Zadejte vyhledávací dotaz">
+    <button onclick="search()">Vyhledat</button>
+    <button id="downloadButton" style="display: none;">Stáhnout výsledky</button>
+
+    <p id="error-message" style="color: red; display: none;">Prosím, zadejte platný dotaz.</p>
+
+    <script>
+        function search() {
+            const query = document.getElementById('searchInput').value.trim();
+            const errorMessage = document.getElementById('error-message');
+
+            if (query === '' || /^[^\w\s]+$/.test(query)) {
+                errorMessage.style.display = 'block';
+            } else {
+                errorMessage.style.display = 'none';
+                // Odeslání dotazu na server
+                window.location.href = `/search?q=${encodeURIComponent(query)}`;
+            }
+        }
+    </script>
+
+</body>
+</html>
